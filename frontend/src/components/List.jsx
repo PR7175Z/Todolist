@@ -14,13 +14,14 @@ export default function List() {
         );
         
         const data = await response.json();
-        return data.message;
+        console.log(data);
+        return {data};
     }
 
     useEffect(() => {
         const fetchData = async () => {
             const message = await apiresponse();
-            setmessage(message);
+            setmessage(message.title);
         };
         fetchData();
     }, []);
