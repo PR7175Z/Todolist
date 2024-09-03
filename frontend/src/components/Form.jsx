@@ -5,8 +5,16 @@ export default function Form() {
 
     const [responseMessage, setResponseMessage] = useState('');
 
+    function getdate(){
+        const date= new Date();
+        const month = date.getMonth()+1;
+        const day = date.getDay()+1;
+        const year = date.getFullYear();
+        return `${month} ${day} ${year}`;
+    }
+
     // Function to make the POST request
-    const apicaller = async (postData) => {
+    const apicaller = async (infotitle, currentdate) => {
         const apiurl = 'http://localhost:3001/api';
         try {
             let response = await fetch(apiurl, {
@@ -14,7 +22,7 @@ export default function Form() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({title : postData}),
+                body: JSON.stringify({title : infotitle, date: currentdate}),
             });
 
             if (response.ok) {
@@ -35,15 +43,19 @@ export default function Form() {
         e.preventDefault();
         const title = e.target.querySelector('input[name="todotitle"]').value;
         setPostData(title);
+        apicaller(postData, getdate());
+    }
 
-        apicaller(postData);
+    function handleOnChange(e){
+        const title = e.target.value;
+        setPostData(title);
     }
 
     return (
         <>
             <div className="form-wrapper">
                 <form id="todoform" onSubmit={handleSubmit} method="post">
-                    <input type="text" name="todotitle" placeholder="Type here..."/>
+                    <input type="text" onChange={handleOnChange} name="todotitle" placeholder="Type here..."/>
                     <button className="submitbtn" type="submit">Submit</button>
                 </form>
             </div>
