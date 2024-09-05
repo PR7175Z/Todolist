@@ -4,6 +4,7 @@ export default function List() {
 
     const [apimessage, setmessage] = useState([]);
 
+    //fetching api response
     const apiresponse = async () =>{
         const apiurl = 'http://localhost:3001/api';
         let response = await fetch(apiurl, {method: 'GET', });
@@ -15,7 +16,6 @@ export default function List() {
     useEffect(() => {
         const fetchData = async () => {
             const message = await apiresponse();
-            // console.log(message.data[0])
             setmessage(message);
         };
         fetchData();
@@ -30,7 +30,14 @@ export default function List() {
         return `${month} ${day} ${year}`;
     }
 
-    // console.log(apimessage)
+    let c = {};
+    let obj_array = [];
+
+    Array.from(apimessage).forEach((e) => {
+        // obj_array.append(e);
+        c[e.date] = e;
+        console.log(typeof(obj_array));
+    })
 
     return (
         <div>
