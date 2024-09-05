@@ -5,7 +5,6 @@ import './App.css'
 
 import Form from './components/Form'
 import Header from './components/Header'
-import List from './components/List'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,7 +13,6 @@ function App() {
     <>
       <Header/>
       <Form/>
-      <List/>
     </>
   )
 }
