@@ -1,9 +1,8 @@
 import React, {useState} from 'react'
 
 export default function Form() {
+    const [items, setItems] = React.useState([])
     const [postData, setPostData] = useState(null);
-
-    const items = [];
 
     // const [responseMessage, setResponseMessage] = useState('');
 
@@ -44,7 +43,8 @@ export default function Form() {
     function handleSubmit(e){
         e.preventDefault();
         const title = e.target.querySelector('input[name="todotitle"]').value;
-        setPostData(prevItems => [...prevItems, title]);
+        setItems(prevItems => [...prevItems, title]);
+        setPostData(title);
         // apicaller(postData, getdate());
     }
 
@@ -62,7 +62,9 @@ export default function Form() {
                 </form>
             </div>
 
-            <div className="">{postData}</div>
+            <div className="">
+                {postData}
+            </div>
         </>
     )
 }
