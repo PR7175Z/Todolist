@@ -1,57 +1,90 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 
 export default function Form() {
-    const [items, setItems] = React.useState([])
+    const [items, setItems] = useState([]);
     const [postData, setPostData] = useState(null);
+    const [responseMessage, setResponseMessage] = useState([]);
 
-    // const [responseMessage, setResponseMessage] = useState('');
+    const apiurl = 'http://localhost:3001/api';
 
-    // function getdate(){
-    //     const date= new Date();
-    //     const month = date.getMonth()+1;
-    //     const day = date.getDay()+1;
-    //     const year = date.getFullYear();
-    //     return `${month} ${day} ${year}`;
-    // }
+    const getapicaller = async () => {
+        try {
+            const response = await fetch(apiurl, { method: 'GET' });
+
+            if (response.ok) {
+                const result = await response.json();
+                setResponseMessage(result);
+            } else {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+            }
+        } catch (error) {
+            console.error('Error posting to the API:', error);
+        }
+    };
+
+    const updatelist = async (id)=>{
+        const apiurl = `http://localhost:3001/api/${id}`;
+        try{
+            const response = await fetch(apiurl,{
+                method : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({title : infotitle, status: status}),
+            }) 
+        } catch (error){
+            console.error('Error updating item:', error);
+        }
+    }
+
+    useEffect(() => {
+        getapicaller();
+    }, []);
+
+    useEffect(() => {
+        if (postData) {
+            apicaller(postData, 'Not Done');
+        }
+    }, [postData]);
+
 
     // Function to make the POST request
-    // const apicaller = async (infotitle, currentdate) => {
-    //     const apiurl = 'http://localhost:3001/api';
-    //     try {
-    //         let response = await fetch(apiurl, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({title : infotitle, date: currentdate}),
-    //         });
+    const apicaller = async (infotitle, status = 'Not done') => {
+        try {
+            let response = await fetch(apiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({title : infotitle, status: status}),
+            });
 
-    //         if (response.ok) {
-    //             const result = await response.json();
-    //             setResponseMessage(result.message);
-    //         } else {
-    //             const errorText = await response.text();
-    //             console.error('Error response:', errorText);
-    //             setResponseMessage('Failed to post data');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error posting to the API:', error);
-    //         setResponseMessage('Error posting data');
-    //     }
-    // };
+            if (response.ok) {
+                await getapicaller();
+            } else {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+            }
+        } catch (error) {
+            console.error('Error posting to the API:', error);
+        }
+    };
 
     function handleSubmit(e){
         e.preventDefault();
         const title = e.target.querySelector('input[name="todotitle"]').value;
         setItems(prevItems => [...prevItems, title]);
         setPostData(title);
-        // apicaller(postData, getdate());
     }
 
-    // function handleOnChange(e){
-    //     const title = e.target.value;
-    //     setPostData(title);
-    // }
+    function todolistclick(e){
+        const itemId = e.target.getAttribute('id');
+
+        e.target.style.textDecoration = "line-through";
+
+        console.log(e.target.getAttribute('id'))
+    }
 
     return (
         <>
@@ -61,9 +94,15 @@ export default function Form() {
                     <button className="submitbtn" type="submit">Submit</button>
                 </form>
             </div>
-
-            <div className="">
-                {postData}
+            <div className="todolist">
+                <ul>
+                    {responseMessage?.map(item => {
+                        const date = new Date(item.date).toISOString().split('T')[0];
+                        return(
+                            <li id={item.id} key={item.id} data-date={date} onClick={todolistclick}>{item.title}</li>
+                        )
+                    })}
+                </ul>
             </div>
         </>
     )
