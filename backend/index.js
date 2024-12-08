@@ -106,17 +106,45 @@ app.get("/api", (req, res) => {
 });
 
 app.post('/api', (req, res) => {
-  const { title, date } = req.body;
-  const sql = 'INSERT INTO todoinfo (title, date) VALUES ($1, $2)';
-  client.query(sql, [title, date], (err, result) => {
+  const { title, status } = req.body;
+  const sql = 'INSERT INTO todoinfo (title, status) VALUES ($1, $2)';
+  client.query(sql, [title, status], (err, result) => {
     if (err) {
-      console.error('Error adding user', err.stack); // Enhanced error logging
-      res.status(500).send(`Error adding user: ${err.message}`);
+      console.error('Error adding item', err.stack); // Enhanced error logging
+      res.status(500).send(`Error adding item: ${err.message}`);
     } else {
-      res.status(201).json({ title, date });
+      res.status(201).json({ title, status });
     }
   });
 });
+
+app.put('/api/:id', (req, res) => {
+  const {id} = req.params;
+  const { title, status } = req.body;
+
+  const sql = 'UPDATE todoinfo SET title=$1 status=$2 WHERE id=$3';
+
+  client.query(sql, [title, status, id], (err, result) => {
+    if(err){
+      console.log('Error updating', err.stack);
+      res.status(500).send(`Error adding item: ${err.message}`);
+    }else{
+      res.status(201).json(result.rows[0])
+    }
+  })
+})
+
+app.get('/api/group', (req, res) => {
+  const sql = 'SELECT * FROM todoinfo GROUP BY date'
+
+  client.query(sql, (err, result)=>{
+    if(err){
+      res.status(500).send(err.message)
+    }else{
+      res.status(200).json(result.row[0])
+    }
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
