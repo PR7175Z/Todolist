@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react'
 
+let groupData = {};
+
 export default function Form() {
     const [items, setItems] = useState([]);
     const [postData, setPostData] = useState(null);
@@ -23,11 +25,11 @@ export default function Form() {
         }
     };
 
-    const updatelist = async (id)=>{
+    const updatelist = async (infotitle, status, id)=>{
         const apiurl = `http://localhost:3001/api/${id}`;
         try{
             const response = await fetch(apiurl,{
-                method : 'POST',
+                method : 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -40,6 +42,8 @@ export default function Form() {
 
     useEffect(() => {
         getapicaller();
+
+        grouper();
     }, []);
 
     useEffect(() => {
@@ -80,11 +84,49 @@ export default function Form() {
 
     function todolistclick(e){
         const itemId = e.target.getAttribute('id');
+        const title = e.target.innerHTML;
+        const status = 'Completed';
 
         e.target.style.textDecoration = "line-through";
 
-        console.log(e.target.getAttribute('id'))
+        updatelist(title,status,itemId);
+
+        // console.log(e.target.innerHTML)
     }
+    const grouper = () => {
+
+        document.querySelectorAll('.groupContainer div').forEach((item)=>{
+            let type = item.getAttribute('data-date');
+
+            if(!groupData[type]){
+                const containerDiv = document.createElement('div');
+                containerDiv.className = 'groupContainer list card';
+                const headerDiv = document.createElement('h3');
+                headerDiv.className = 'heading';
+                headerDiv.innerHTML = type;
+
+                containerDiv.appendChild(headerDiv)
+
+                groupData[type] = [containerDiv];
+            }
+            groupData[type].push(item);
+        });
+
+        console.log(groupData)
+        for (var key in groupData) {
+            groupData[key].forEach(item => { 
+                document.querySelector(".todolist").append(item);
+            });
+        }
+    }
+
+    const interval = setInterval(() => {
+        const element = document.querySelectorAll('.groupContainer div');
+        if(element.length > 0){
+            clearInterval(interval);
+            grouper();
+        }
+    })
 
     return (
         <>
@@ -95,14 +137,14 @@ export default function Form() {
                 </form>
             </div>
             <div className="todolist">
-                <ul>
+                <div className="groupContainer">
                     {responseMessage?.map(item => {
                         const date = new Date(item.date).toISOString().split('T')[0];
                         return(
-                            <li id={item.id} key={item.id} data-date={date} onClick={todolistclick}>{item.title}</li>
+                            <div id={item.id} className="targetpoint" key={item.id} data-date={date} onClick={todolistclick}>{item.title}</div>
                         )
                     })}
-                </ul>
+                </div>
             </div>
         </>
     )
