@@ -134,18 +134,6 @@ app.put('/api/:id', (req, res) => {
   })
 })
 
-app.get('/api/group', (req, res) => {
-  const sql = 'SELECT * FROM todoinfo GROUP BY date'
-
-  client.query(sql, (err, result)=>{
-    if(err){
-      res.status(500).send(err.message)
-    }else{
-      res.status(200).json(result.row[0])
-    }
-  })
-})
-
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
