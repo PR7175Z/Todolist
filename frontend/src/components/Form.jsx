@@ -90,8 +90,6 @@ export default function Form() {
         e.target.style.textDecoration = "line-through";
 
         updatelist(title,status,itemId);
-
-        // console.log(e.target.innerHTML)
     }
     const grouper = () => {
 
@@ -140,8 +138,9 @@ export default function Form() {
                 <div className="groupContainer">
                     {responseMessage?.map(item => {
                         const date = new Date(item.date).toISOString().split('T')[0];
+                        const status = item.status.toLowerCase().split(' ').join('-');
                         return(
-                            <div id={item.id} className="targetpoint" key={item.id} data-date={date} onClick={todolistclick}>{item.title}</div>
+                            <div id={item.id} className="targetpoint" data-status={status} key={item.id} data-date={date} onClick={todolistclick}>{item.title}</div>
                         )
                     })}
                 </div>
