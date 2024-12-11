@@ -70,3 +70,7 @@ button:focus-visible {
 ul{
   list-style: none;
 }
+
+.targetpoint[data-status="completed"] {
+  text-decoration: line-through;
+}
