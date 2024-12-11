@@ -119,20 +119,20 @@ app.post('/api', (req, res) => {
 });
 
 app.put('/api/:id', (req, res) => {
-  const {id} = req.params;
-  const { title, status } = req.body;
+  const { id } = req.params; // Extract 'id' from the URL
+  const { title, status } = req.body; // Extract 'title' and 'status' from the request body
 
-  const sql = 'UPDATE todoinfo SET title=$1 status=$2 WHERE id=$3';
+  // Fixed SQL query with the correct syntax
+  const sql = 'UPDATE todoinfo SET title=$1, status=$2 WHERE id=$3';
 
   client.query(sql, [title, status, id], (err, result) => {
-    if(err){
-      console.log('Error updating', err.stack);
-      res.status(500).send(`Error adding item: ${err.message}`);
-    }else{
-      res.status(201).json(result.rows[0])
+    if (err) {
+      console.error('Error updating:', err.stack); // Log detailed error
+      return res.status(500).send(`Error updating item: ${err.message}`);
     }
-  })
-})
+    res.status(200).json({ message: 'Item updated successfully' });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
