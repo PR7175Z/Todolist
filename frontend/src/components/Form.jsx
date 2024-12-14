@@ -97,25 +97,28 @@ export default function Form() {
             let type = item.getAttribute('data-date');
 
             if(!groupData[type]){
-                const containerDiv = document.createElement('div');
-                containerDiv.className = 'groupContainer list card';
                 const headerDiv = document.createElement('h3');
                 headerDiv.className = 'heading';
                 headerDiv.innerHTML = type;
 
-                containerDiv.appendChild(headerDiv)
-
-                groupData[type] = [containerDiv];
+                groupData[type] = [headerDiv];
             }
             groupData[type].push(item);
         });
 
-        console.log(groupData)
-        for (var key in groupData) {
-            groupData[key].forEach(item => { 
-                document.querySelector(".todolist").append(item);
+        const sortedKeys =[...new Set(Object.keys(groupData))].sort((a, b) => new Date(b) - new Date(a));
+
+        console.log(sortedKeys);
+
+        const todoList = document.querySelector(".todolist");
+        sortedKeys.forEach(key => {
+            const emptySubContainer = document.createElement('div');
+            emptySubContainer.className = 'groupContainer list card';
+            groupData[key].forEach(item => {
+                emptySubContainer.append(item);
             });
-        }
+            todoList.append(emptySubContainer);
+        });
     }
 
     const interval = setInterval(() => {
