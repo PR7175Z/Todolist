@@ -6,111 +6,71 @@ export default function Form() {
     const [items, setItems] = useState([]);
     const [postData, setPostData] = useState(null);
     const [responseMessage, setResponseMessage] = useState([]);
-
     const apiurl = 'http://localhost:3001/api';
 
     const getapicaller = async () => {
         try {
             const response = await fetch(apiurl, { method: 'GET' });
-
             if (response.ok) {
                 const result = await response.json();
                 setResponseMessage(result);
             } else {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
+                console.error('Error response:', await response.text());
             }
         } catch (error) {
-            console.error('Error posting to the API:', error);
+            console.error('Error fetching from API:', error);
         }
     };
 
-    const updatelist = async (infotitle, status, id)=>{
+    const updatelist = async (infotitle, status, id) => {
         const apiurl = `http://localhost:3001/api/${id}`;
-        try{
-            const response = await fetch(apiurl,{
-                method : 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({title : infotitle, status: status}),
-            }) 
-        } catch (error){
+        try {
+            await fetch(apiurl, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: infotitle, status }),
+            });
+        } catch (error) {
             console.error('Error updating item:', error);
         }
-    }
+    };
 
-    useEffect(() => {
-        getapicaller();
-
-        grouper();
-    }, []);
-
-    useEffect(() => {
-        if (postData) {
-            apicaller(postData, 'Not Done');
-        }
-    }, [postData]);
-
-
-    // Function to make the POST request
-    const apicaller = async (infotitle, status = 'Not done') => {
+    const apicaller = async (infotitle, status = 'Not Done') => {
         try {
-            let response = await fetch(apiurl, {
+            const response = await fetch(apiurl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({title : infotitle, status: status}),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: infotitle, status }),
             });
-
             if (response.ok) {
                 await getapicaller();
             } else {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
+                console.error('Error response:', await response.text());
             }
         } catch (error) {
             console.error('Error posting to the API:', error);
         }
     };
 
-    function handleSubmit(e){
-        e.preventDefault();
-        const title = e.target.querySelector('input[name="todotitle"]').value;
-        setItems(prevItems => [...prevItems, title]);
-        setPostData(title);
-    }
-
-    function todolistclick(e){
-        const itemId = e.target.getAttribute('id');
-        const title = e.target.innerHTML;
-        const status = 'Completed';
-
-        e.target.style.textDecoration = "line-through";
-
-        updatelist(title,status,itemId);
-    }
     const grouper = () => {
+        groupData = {};
 
-        document.querySelectorAll('.groupContainer div').forEach((item)=>{
+        document.querySelectorAll('.groupContainer div').forEach((item) => {
             let type = item.getAttribute('data-date');
-
-            if(!groupData[type]){
+            if (!groupData[type]) {
                 const headerDiv = document.createElement('h3');
                 headerDiv.className = 'heading';
                 headerDiv.innerHTML = type;
-
                 groupData[type] = [headerDiv];
             }
             groupData[type].push(item);
         });
 
-        const sortedKeys =[...new Set(Object.keys(groupData))].sort((a, b) => new Date(b) - new Date(a));
-
-        console.log(sortedKeys);
+        const sortedKeys = [...new Set(Object.keys(groupData))].sort((a, b) => new Date(b) - new Date(a));
 
         const todoList = document.querySelector(".todolist");
+        todoList.innerHTML = '';
+
         sortedKeys.forEach(key => {
             const emptySubContainer = document.createElement('div');
             emptySubContainer.className = 'groupContainer list card';
@@ -119,15 +79,32 @@ export default function Form() {
             });
             todoList.append(emptySubContainer);
         });
-    }
+    };
 
-    const interval = setInterval(() => {
-        const element = document.querySelectorAll('.groupContainer div');
-        if(element.length > 0){
-            clearInterval(interval);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const title = e.target.querySelector('input[name="todotitle"]').value;
+        setItems((prevItems) => [...prevItems, title]);
+        setPostData(title);
+    };
+
+    const todolistclick = (e) => {
+        const itemId = e.target.getAttribute('id');
+        const title = e.target.innerHTML;
+        const status = 'Completed';
+        e.target.style.textDecoration = "line-through";
+        updatelist(title, status, itemId);
+    };
+
+    useEffect(() => {
+        getapicaller();
+    }, []);
+
+    useEffect(() => {
+        if (responseMessage.length > 0) {
             grouper();
         }
-    })
+    }, [responseMessage]);
 
     return (
         <>
